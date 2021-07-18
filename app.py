@@ -74,36 +74,35 @@ def stations():
     # Close session
     session.close()
 
-    # Stations using numpy and using ravel method to return a JSON list of stations from the dataset.
+    # Return jsonify stations
     return jsonify(stations=station)
 
-# @app.route("/api/v1.0/tobs")
-# def tobs():
+@app.route("/api/v1.0/tobs")
+def tobs():
+    
+    # dates and temperature observations of the most active station for the last year of data
+    previous_year = dt.date(2017, 8, 23)-dt.timedelta(days=365)
+    tobs = session.query(Measurement.date, Measurement.tobs).filter(Measurement.date >= previous_year).filter(Measurement.station == 'USC00519281').all()
 
+    # Close session
+    session.close()
 
+    # Return jsonify tobs
+    return jsonify(tobs)
 
+@app.route("/api/v1.0/<start>")
+@app.route("/api/v1.0/<start>/<end>")
+def desc_stats(start=None, end=None):
+    """Return a JSON list of the minimum temperature, the average temperature, and the max temperature for a given start or start-end range"""
+    
+    selection = [func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)]
+    query_results = session.query(*selection).filter(Measurement.date >= start).all()
 
+    # Close session
+    session.close()
 
-#     # Close session
-#     session.close()
-
-
-#     return jsonify(tobs)
-
-
-# @app.route("/api/v1.0/<start>")
-# # @app.route("/api/v1.0/<start>/<end>")
-# def desc_stats(start=None, end=None):
-#     """Return a JSON list of the minimum temperature, the average temperature, and the max temperature for a given start or start-end range"""
-#     selection = [func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)]
-
-#     start = dt.datetime.strptime(start, '%m%d%Y')
-#     query_results = session.query(*selection).filter(Measurement.date >= start).all()
-
-#     # Close session
-#     session.close()
-
-#     return jsonify(query_results)
+    # Return jsonify query_results
+    return jsonify(query_results)
 
 
 if __name__ == "__main__":
