@@ -96,7 +96,7 @@ def desc_stats(start=None, end=None):
     """Return a JSON list of the minimum temperature, the average temperature, and the max temperature for a given start or start-end range"""
     
     selection = [func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)]
-    query_results = session.query(*selection).filter(Measurement.date >= start).all()
+    query_results = session.query(*selection).filter(Measurement.date >= start).filter(Measurement.date <= end).all()
 
     # Close session
     session.close()
